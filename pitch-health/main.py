@@ -1,10 +1,7 @@
 from fastapi import FastAPI
-from motor.motor_asyncio import AsyncIOMotorClient
+
+from .views import pitches_router
+
 
 app = FastAPI()
-
-# MongoDB connection URL
-MONGO_URL = "mongodb://mongo:27017"
-client = AsyncIOMotorClient(MONGO_URL)
-database = client["mydatabase"]
-collection = database["pitches"]
+app.include_router(pitches_router)

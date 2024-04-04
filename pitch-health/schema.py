@@ -1,5 +1,7 @@
 from datetime import datetime
 from enum import Enum
+from typing import Optional
+from bson import ObjectId
 
 from pydantic import BaseModel, Field
 
@@ -16,6 +18,7 @@ class TurfType(str, Enum):
 
 
 class Pitch(BaseModel):
+    id: Optional[ObjectId] = Field(alias='_id', default=None)
     name: str
     location: PitchLocation
     turf_type: TurfType
@@ -23,3 +26,9 @@ class Pitch(BaseModel):
     next_scheduled_maintenance: datetime
     current_condition: int = Field(ge=1, le=10)
     replacement_date: datetime
+
+    class Config:
+        arbitrary_types_allowed = True
+        json_encoders = {
+            ObjectId: str
+        }

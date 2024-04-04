@@ -5,9 +5,9 @@ name = "pypi"
 
 [packages]
 fastapi = "*"
-motor = "*"
 pydantic = "*"
 uvicorn = "*"
+pymongo = "*"
 
 [dev-packages]
 flake8 = "*"
