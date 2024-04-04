@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  mongo:
+    image: mongo
+
+  fastapi:
+    build: .
+    environment:
+      PORT: 8000
+    ports:
+      - 8000:8000
