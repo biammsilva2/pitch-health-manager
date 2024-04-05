@@ -7,7 +7,8 @@ from requests import get
 from .schema import Pitch
 from .constants import RainTimePerTurfType, TURF_DAMAGE_POINTS, \
                        MAINTENANCE_CUT_SCORE, TURF_REPLACEMENT_SCORE, \
-                       DryingTimePerTurfType, MAINTENANCE_POINTS
+                       DryingTimePerTurfType, MAINTENANCE_POINTS, \
+                       MAINTENANCE_TIME
 
 
 class WeatherService:
@@ -95,7 +96,8 @@ class PitchHealth:
     @classmethod
     def do_maintenance(cls, pitch: Pitch) -> Pitch:
         pitch.update_points(MAINTENANCE_POINTS)
-        pitch.last_maintenance_date = datetime.now()
+        pitch.last_maintenance_date = datetime.now() + \
+            timedelta(hours=MAINTENANCE_TIME)
         pitch.pitch_analyzed_last = None
         pitch.save()
         return pitch
