@@ -57,6 +57,7 @@ class Pitch(BaseModel):
     current_condition: int = Field(ge=1, le=10)
     replacement_date: datetime
     need_to_change_turf: bool = False
+    pitch_analyzed_last: Optional[datetime] = None
 
     class Config:
         arbitrary_types_allowed = True

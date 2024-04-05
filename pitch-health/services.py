@@ -1,5 +1,6 @@
 from os import getenv
 from datetime import datetime, timedelta
+from typing import List
 
 from requests import get
 
@@ -16,7 +17,10 @@ class WeatherService:
 
     @classmethod
     def search_weather_from_last_maintenance(cls, pitch: Pitch) -> dict:
-        initial_date = pitch.last_maintenance_date.date()
+        if pitch.pitch_analyzed_last:
+            initial_date = pitch.pitch_analyzed_last.date()
+        else:
+            initial_date = pitch.last_maintenance_date.date()
         end_date = datetime.now().date()
         result = get(
             f'{cls.url}/{pitch.location.city}/{initial_date}/{end_date}',
@@ -60,7 +64,14 @@ class PitchHealth:
 
     @classmethod
     def check_turf_health(cls, pitch: Pitch) -> Pitch:
-        if not pitch.need_to_change_turf:
+        # verify the time of last analysis to make it again
+        # in case it rains again even after a maintenance was scheduled
+        pitch_was_analyzed_today = False
+        if pitch.pitch_analyzed_last is not None:
+            pitch_was_analyzed_today = \
+                pitch.pitch_analyzed_last.date() == datetime.now().date()
+        if not pitch.need_to_change_turf and not pitch_was_analyzed_today:
+
             hours = WeatherService.calculate_rain_hours_from_last_maintanance(
                 pitch
             )
@@ -73,10 +84,11 @@ class PitchHealth:
                 pitch.need_to_change_turf = True
             elif pitch.current_condition < MAINTENANCE_CUT_SCORE:
                 # require maintenance
-                # TODO: check weather forecast for future rain
+                # MAYDO: check weather forecast for future rain
                 drying_time = DryingTimePerTurfType[pitch.turf_type].value
                 pitch.next_scheduled_maintenance = \
                     datetime.now() + timedelta(hours=drying_time)
+                pitch.pitch_analyzed_last = datetime.now()
             pitch.save()
         return pitch
 
@@ -84,6 +96,7 @@ class PitchHealth:
     def do_maintenance(cls, pitch: Pitch) -> Pitch:
         pitch.update_points(MAINTENANCE_POINTS)
         pitch.last_maintenance_date = datetime.now()
+        pitch.pitch_analyzed_last = None
         pitch.save()
         return pitch
 
@@ -93,9 +106,6 @@ class PitchHealth:
         pitch.replacement_date = datetime.now()
         pitch.next_scheduled_maintenance = None
         pitch.need_to_change_turf = False
+        pitch.pitch_analyzed_last = None
         pitch.save()
         return pitch
-
-    @classmethod
-    def analyze_all_pitches(cls):
-        pass
