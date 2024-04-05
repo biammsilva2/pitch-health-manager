@@ -8,6 +8,8 @@ fastapi = "*"
 pydantic = "*"
 uvicorn = "*"
 pymongo = "*"
+requests = "*"
+geopy = "*"
 
 [dev-packages]
 flake8 = "*"

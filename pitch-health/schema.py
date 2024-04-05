@@ -6,6 +6,8 @@ from bson import ObjectId
 from pydantic import BaseModel, Field
 from pydantic_core import core_schema
 
+from .database import db
+
 
 class PyObjectId(str):
     @classmethod
@@ -51,12 +53,28 @@ class Pitch(BaseModel):
     location: PitchLocation
     turf_type: TurfType
     last_maintenance_date: datetime
-    next_scheduled_maintenance: datetime
+    next_scheduled_maintenance: Optional[datetime] = None
     current_condition: int = Field(ge=1, le=10)
     replacement_date: datetime
+    need_to_change_turf: bool = False
 
     class Config:
         arbitrary_types_allowed = True
         json_encoders = {
             PyObjectId: str
         }
+
+    def update_points(self, points):
+        new_points = self.current_condition + points
+        if new_points > 10:
+            new_points = 10
+        elif new_points < 1:
+            new_points = 1
+        self.current_condition = new_points
+        self.save()
+
+    def save(self):
+        db.pitches.find_one_and_update(
+            filter={'_id': ObjectId(self.id)},
+            update={'$set': self.model_dump()}
+        )

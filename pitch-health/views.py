@@ -6,6 +6,7 @@ from pymongo import ReturnDocument
 
 from .database import db
 from .schema import Pitch
+from .services import PitchHealth
 
 
 pitches_router = APIRouter(
@@ -30,7 +31,7 @@ async def create_pitch(pitch: Pitch) -> Pitch:
     return pitch
 
 
-@pitches_router.patch('{pitch_id}')
+@pitches_router.patch('/{pitch_id}')
 async def update_pitch(pitch_id: str, pitch_dict: dict) -> Pitch:
     result = db.pitches.find_one_and_update(
         filter={'_id': ObjectId(pitch_id)},
@@ -40,8 +41,16 @@ async def update_pitch(pitch_id: str, pitch_dict: dict) -> Pitch:
     return Pitch(**result)
 
 
-@pitches_router.delete('{pitch_id}', status_code=204)
+@pitches_router.delete('/{pitch_id}', status_code=204)
 async def delete_pitch(pitch_id: str) -> None:
     db.pitches.find_one_and_delete(
         filter={'_id': ObjectId(pitch_id)}
     )
+
+
+@pitches_router.get('/{pitch_id}/analyze')
+async def analyze_pitch(pitch_id: str) -> Pitch:
+    pitch = db.pitches.find_one(
+        filter={'_id': ObjectId(pitch_id)}
+    )
+    return PitchHealth.check_turf_health(Pitch(**pitch))
