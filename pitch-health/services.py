@@ -59,7 +59,7 @@ class WeatherService:
 class PitchHealth:
 
     @classmethod
-    def check_turf_health(cls, pitch: Pitch) -> None:
+    def check_turf_health(cls, pitch: Pitch) -> Pitch:
         if not pitch.need_to_change_turf:
             hours = WeatherService.calculate_rain_hours_from_last_maintanance(
                 pitch
@@ -69,6 +69,7 @@ class PitchHealth:
                 mulltiplicator = hours//rain_cut_value
                 pitch.update_points(TURF_DAMAGE_POINTS*mulltiplicator*-1)
             if pitch.current_condition <= TURF_REPLACEMENT_SCORE:
+                # require change of turf
                 pitch.need_to_change_turf = True
             elif pitch.current_condition < MAINTENANCE_CUT_SCORE:
                 # require maintenance
@@ -80,18 +81,21 @@ class PitchHealth:
         return pitch
 
     @classmethod
-    def do_maintenance(cls, pitch: Pitch) -> None:
+    def do_maintenance(cls, pitch: Pitch) -> Pitch:
         pitch.update_points(MAINTENANCE_POINTS)
         pitch.last_maintenance_date = datetime.now()
         pitch.save()
+        return pitch
 
     @classmethod
-    def change_turf(cls, pitch: Pitch) -> None:
+    def change_turf(cls, pitch: Pitch) -> Pitch:
         pitch.current_condition = 10
         pitch.replacement_date = datetime.now()
         pitch.next_scheduled_maintenance = None
+        pitch.need_to_change_turf = False
         pitch.save()
-    
+        return pitch
+
     @classmethod
     def analyze_all_pitches(cls):
         pass

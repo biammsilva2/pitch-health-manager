@@ -54,3 +54,19 @@ async def analyze_pitch(pitch_id: str) -> Pitch:
         filter={'_id': ObjectId(pitch_id)}
     )
     return PitchHealth.check_turf_health(Pitch(**pitch))
+
+
+@pitches_router.get('/{pitch_id}/maintenance/done')
+async def do_maintenance(pitch_id: str) -> Pitch:
+    pitch = db.pitches.find_one(
+        filter={'_id': ObjectId(pitch_id)}
+    )
+    return PitchHealth.do_maintenance(Pitch(**pitch))
+
+
+@pitches_router.get('/{pitch_id}/turf/changed')
+async def change_turf(pitch_id: str) -> Pitch:
+    pitch = db.pitches.find_one(
+        filter={'_id': ObjectId(pitch_id)}
+    )
+    return PitchHealth.change_turf(Pitch(**pitch))
