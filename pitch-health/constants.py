@@ -26,6 +26,8 @@ class RainTimePerTurfType(Enum):
     natural = 3
 
 
+# how much time it takes to dry the turf
+# by turf type
 class DryingTimePerTurfType(Enum):
     artificial = 12
     hybrid = 24
