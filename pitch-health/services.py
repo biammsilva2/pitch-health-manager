@@ -1,6 +1,5 @@
 from os import getenv
 from datetime import datetime, timedelta
-from typing import List
 
 from requests import get
 
@@ -90,7 +89,6 @@ class PitchHealth:
                 pitch.next_scheduled_maintenance = \
                     datetime.now() + timedelta(hours=drying_time)
                 pitch.pitch_analyzed_last = datetime.now()
-            pitch.save()
         return pitch
 
     @classmethod
@@ -99,7 +97,6 @@ class PitchHealth:
         pitch.last_maintenance_date = datetime.now() + \
             timedelta(hours=MAINTENANCE_TIME)
         pitch.pitch_analyzed_last = None
-        pitch.save()
         return pitch
 
     @classmethod
@@ -109,5 +106,4 @@ class PitchHealth:
         pitch.next_scheduled_maintenance = None
         pitch.need_to_change_turf = False
         pitch.pitch_analyzed_last = None
-        pitch.save()
         return pitch

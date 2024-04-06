@@ -64,6 +64,7 @@ class Pitch(BaseModel):
         json_encoders = {
             PyObjectId: str
         }
+        db = db
 
     def update_points(self, points):
         new_points = self.current_condition + points
