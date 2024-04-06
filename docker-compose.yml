@@ -19,3 +19,8 @@ services:
       - .env
     ports:
       - 8000:8000
+
+  test:
+    build:
+      context: .
+      dockerfile: testing-dockerfile

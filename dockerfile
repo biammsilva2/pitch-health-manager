@@ -8,9 +8,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc
 COPY Pipfile .
 COPY Pipfile.lock .
 RUN pipenv install --system --deploy --ignore-pipfile
+
 RUN export $(cat .env)
 
-COPY ./pitch-health /code/pitch-health
+COPY ./pitch_health /code/pitch_health
 
 EXPOSE 8000
-CMD ["uvicorn", "pitch-health.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "pitch_health.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

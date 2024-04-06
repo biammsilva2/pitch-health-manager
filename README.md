@@ -34,8 +34,8 @@ On this application you will be able to:
 
 You will need docker installed on your machine, on root directory run
 
-    $ docker-compose up
+    $ docker-compose up mongodb fastapi
 
 ## How to run tests
 
-    $ aaaa
+    $ docker-compose test
