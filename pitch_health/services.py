@@ -57,7 +57,7 @@ class WeatherService:
                 max_precipitation_perc,
                 precipitation_perc
             )
-        return 0.24 * max_precipitation_perc
+        return int(0.24 * max_precipitation_perc)
 
 
 class PitchHealth:
@@ -84,7 +84,7 @@ class PitchHealth:
                 pitch.need_to_change_turf = True
             elif pitch.current_condition < MAINTENANCE_CUT_SCORE:
                 # require maintenance
-                # MAYDO: check weather forecast for future rain
+                # WOULD_DO: check weather forecast for future rain
                 drying_time = DryingTimePerTurfType[pitch.turf_type].value
                 pitch.next_scheduled_maintenance = \
                     datetime.now() + timedelta(hours=drying_time)

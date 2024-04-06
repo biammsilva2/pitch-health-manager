@@ -34,8 +34,8 @@ On this application you will be able to:
 
 You will need docker installed on your machine, on root directory run
 
-    docker-compose up
+    $ docker-compose up
 
 ## How to run tests
 
-    aaaa
+    $ aaaa

@@ -73,7 +73,6 @@ class Pitch(BaseModel):
         elif new_points < 1:
             new_points = 1
         self.current_condition = new_points
-        self.save()
 
     def save(self):
         db.pitches.find_one_and_update(

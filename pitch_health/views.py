@@ -29,6 +29,7 @@ async def list_pitches() -> List[Pitch]:
                 pitch.pitch_analyzed_last.date() == datetime.now().date()
         if not pitch.need_to_change_turf and pitch_was_analyzed_today:
             PitchHealth.check_turf_health(pitch)
+            pitch.save()
         pitches.append(pitch)
     return pitches
 
@@ -61,10 +62,12 @@ async def delete_pitch(pitch_id: str) -> None:
 
 @pitches_router.get('/{pitch_id}/analyze')
 async def analyze_pitch(pitch_id: str) -> Pitch:
-    pitch = db.pitches.find_one(
+    pitch_db = db.pitches.find_one(
         filter={'_id': ObjectId(pitch_id)}
     )
-    return PitchHealth.check_turf_health(Pitch(**pitch))
+    pitch = PitchHealth.check_turf_health(Pitch(**pitch_db))
+    pitch.save()
+    return pitch
 
 
 @pitches_router.get('/{pitch_id}/maintenance/done')
@@ -77,10 +80,12 @@ async def do_maintenance(pitch_id: str) -> Pitch:
 
 @pitches_router.get('/{pitch_id}/turf/changed')
 async def change_turf(pitch_id: str) -> Pitch:
-    pitch = db.pitches.find_one(
+    pitch_db = db.pitches.find_one(
         filter={'_id': ObjectId(pitch_id)}
     )
-    return PitchHealth.change_turf(Pitch(**pitch))
+    pitch = PitchHealth.change_turf(Pitch(**pitch_db))
+    pitch.save()
+    return pitch
 
 
 @pitches_router.get('/maintenance/needed')
