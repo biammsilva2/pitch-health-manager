@@ -36,6 +36,8 @@ You will need docker installed on your machine, on root directory run
 
     $ docker-compose up mongodb fastapi
 
+You will need to add your api key on `VISUAL_CROSSING_API_KEY` environment variable. You can create your key on: https://www.visualcrossing.com/
+
 ## How to run tests
 
     $ docker-compose test
