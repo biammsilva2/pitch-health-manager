@@ -11,6 +11,7 @@ pymongo = "*"
 requests = "*"
 geopy = "*"
 coverage = "*"
+loguru = "*"
 
 [dev-packages]
 flake8 = "*"

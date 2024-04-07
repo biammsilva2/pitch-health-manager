@@ -1,6 +1,6 @@
 FROM python:3.9.1
 
-WORKDIR /code
+WORKDIR /
 
 # Install pipenv and compilation dependencies
 RUN pip install pipenv
@@ -11,7 +11,6 @@ RUN pipenv install --system --deploy --ignore-pipfile
 
 RUN export $(cat .env)
 
-COPY ./pitch_health /code/pitch_health
+COPY . .
 
 EXPOSE 8000
-CMD ["uvicorn", "pitch_health.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

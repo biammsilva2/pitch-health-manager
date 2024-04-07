@@ -22,6 +22,13 @@ On this application you will be able to:
 - MongoDB
 - Docker
 
+## Tech choices
+
+- Log: loguru
+- API: Visual Crossing
+- database connector: pymongo
+- Package manager: Pipenv
+
 ## URLs
 
 - When running on docker-compose this app will run on http://localhost:8000
