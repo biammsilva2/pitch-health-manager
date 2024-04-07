@@ -1,13 +1,15 @@
 from typing import List
-from bson import ObjectId
+from bson import errors, ObjectId
 from datetime import datetime
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
+from loguru import logger
 from pymongo import ReturnDocument
 
-from .database import db
 from .schema import Pitch
 from .services import PitchHealth
+from .dal import find_all_pitches, find_one_pitch, \
+    update_pitch_db, delete_pitch_db, insert_pitch_db
 
 
 pitches_router = APIRouter(
@@ -18,7 +20,7 @@ pitches_router = APIRouter(
 @pitches_router.get('')
 async def list_pitches() -> List[Pitch]:
     pitches = []
-    for pitch_dict in db.pitches.find():
+    for pitch_dict in find_all_pitches():
         pitch = Pitch(**pitch_dict)
 
         # Every listing of pitches, the application will check
@@ -38,31 +40,40 @@ async def list_pitches() -> List[Pitch]:
 async def create_pitch(pitch: Pitch) -> Pitch:
     if hasattr(pitch, 'id'):
         delattr(pitch, 'id')
-    ret = db.pitches.insert_one(pitch.model_dump(by_alias=True))
+    ret = insert_pitch_db(pitch.model_dump(by_alias=True))
     pitch.id = ret.inserted_id
     return pitch
 
 
 @pitches_router.patch('/{pitch_id}')
 async def update_pitch(pitch_id: str, pitch_dict: dict) -> Pitch:
-    result = db.pitches.find_one_and_update(
-        filter={'_id': ObjectId(pitch_id)},
-        update={'$set': pitch_dict},
-        return_document=ReturnDocument.AFTER
-    )
-    return Pitch(**result)
+    try:
+        result = update_pitch_db(
+            filter={'_id': ObjectId(pitch_id)},
+            update={'$set': pitch_dict},
+            return_document=ReturnDocument.AFTER
+        )
+        logger.info(f'Pitch: {pitch_id} - saved. Data: {str(pitch_dict)}')
+    except errors.InvalidId:
+        return Response(content='Item not found', status_code=404)
+    else:
+        return Pitch(**result)
 
 
 @pitches_router.delete('/{pitch_id}', status_code=204)
 async def delete_pitch(pitch_id: str) -> None:
-    db.pitches.find_one_and_delete(
-        filter={'_id': ObjectId(pitch_id)}
-    )
+    try:
+        delete_pitch_db(
+            filter={'_id': ObjectId(pitch_id)}
+        )
+        logger.info(f'Pitch: {pitch_id} - deleted')
+    except errors.InvalidId:
+        return Response(content='Item not found', status_code=404)
 
 
 @pitches_router.get('/{pitch_id}/analyze')
 async def analyze_pitch(pitch_id: str) -> Pitch:
-    pitch_db = db.pitches.find_one(
+    pitch_db = find_one_pitch(
         filter={'_id': ObjectId(pitch_id)}
     )
     pitch = PitchHealth.check_turf_health(Pitch(**pitch_db))
@@ -72,7 +83,7 @@ async def analyze_pitch(pitch_id: str) -> Pitch:
 
 @pitches_router.get('/{pitch_id}/maintenance/done')
 async def do_maintenance(pitch_id: str) -> Pitch:
-    pitch = db.pitches.find_one(
+    pitch = find_one_pitch(
         filter={'_id': ObjectId(pitch_id)}
     )
     return PitchHealth.do_maintenance(Pitch(**pitch))
@@ -80,7 +91,7 @@ async def do_maintenance(pitch_id: str) -> Pitch:
 
 @pitches_router.get('/{pitch_id}/turf/changed')
 async def change_turf(pitch_id: str) -> Pitch:
-    pitch_db = db.pitches.find_one(
+    pitch_db = find_one_pitch(
         filter={'_id': ObjectId(pitch_id)}
     )
     pitch = PitchHealth.change_turf(Pitch(**pitch_db))
@@ -90,7 +101,7 @@ async def change_turf(pitch_id: str) -> Pitch:
 
 @pitches_router.get('/maintenance/needed')
 async def get_all_pitches_that_needs_maintenance() -> List[Pitch]:
-    pitches = db.pitches.find(
+    pitches = find_all_pitches(
         filter={'next_scheduled_maintenance': {'$ne': None}}
     )
     return [Pitch(**pitch) for pitch in pitches]
@@ -98,7 +109,7 @@ async def get_all_pitches_that_needs_maintenance() -> List[Pitch]:
 
 @pitches_router.get('/turf/replacement/needed')
 async def get_all_pitches_that_needs_turf_replacement() -> List[Pitch]:
-    pitches = db.pitches.find(
+    pitches = find_all_pitches(
         filter={'need_to_change_turf': True}
     )
     return [Pitch(**pitch) for pitch in pitches]

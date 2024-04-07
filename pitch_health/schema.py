@@ -5,6 +5,9 @@ from bson import ObjectId
 
 from pydantic import BaseModel, Field
 from pydantic_core import core_schema
+from loguru import logger
+
+from pitch_health.dal import update_pitch_db
 
 from .database import db
 
@@ -72,10 +75,14 @@ class Pitch(BaseModel):
             new_points = 10
         elif new_points < 1:
             new_points = 1
+        logger.info(f'Pitch: {self.id} - points updated from ' +
+                    f'{self.current_condition} to {new_points}')
         self.current_condition = new_points
 
     def save(self):
-        db.pitches.find_one_and_update(
+        update_pitch_db(
             filter={'_id': ObjectId(self.id)},
             update={'$set': self.model_dump()}
         )
+        data = self.model_dump(mode='json')
+        logger.info(f'Pitch: {self.id} - saved. Data: {str(data)}')

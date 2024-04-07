@@ -2,6 +2,7 @@ from os import getenv
 from datetime import datetime, timedelta
 
 from requests import get
+from loguru import logger
 
 from .schema import Pitch
 from .constants import RainTimePerTurfType, TURF_DAMAGE_POINTS, \
@@ -50,6 +51,7 @@ class WeatherService:
         result = cls.search_weather_from_last_maintenance(
             pitch
         )
+        logger.info(f"Pitch {pitch.id} - External weather API reached")
         max_precipitation_perc = 0
         for day in result.get('days'):
             precipitation_perc = day.get('precipcover')
@@ -77,14 +79,17 @@ class PitchHealth:
             )
             rain_cut_value = RainTimePerTurfType[pitch.turf_type].value
             if hours >= rain_cut_value:
+                logger.info(f'Pitch {pitch.id} - turf has damaged by the rain')
                 mulltiplicator = hours//rain_cut_value
                 pitch.update_points(TURF_DAMAGE_POINTS*mulltiplicator*-1)
             if pitch.current_condition <= TURF_REPLACEMENT_SCORE:
                 # require change of turf
+                logger.info(f'Pitch {pitch.id} - require change of turf')
                 pitch.need_to_change_turf = True
             elif pitch.current_condition < MAINTENANCE_CUT_SCORE:
                 # require maintenance
                 # WOULD_DO: check weather forecast for future rain
+                logger.info(f'Pitch {pitch.id} - require maintenance')
                 drying_time = DryingTimePerTurfType[pitch.turf_type].value
                 pitch.next_scheduled_maintenance = \
                     datetime.now() + timedelta(hours=drying_time)
@@ -97,6 +102,7 @@ class PitchHealth:
         pitch.last_maintenance_date = datetime.now() + \
             timedelta(hours=MAINTENANCE_TIME)
         pitch.pitch_analyzed_last = None
+        logger.info(f'Pitch {pitch.id} - maintenance made')
         return pitch
 
     @classmethod
@@ -106,4 +112,5 @@ class PitchHealth:
         pitch.next_scheduled_maintenance = None
         pitch.need_to_change_turf = False
         pitch.pitch_analyzed_last = None
+        logger.info(f'Pitch {pitch.id} - had turf change')
         return pitch
