@@ -8,12 +8,11 @@ from .schema import Pitch
 from .constants import RainTimePerTurfType, TURF_DAMAGE_POINTS, \
                        MAINTENANCE_CUT_SCORE, TURF_REPLACEMENT_SCORE, \
                        DryingTimePerTurfType, MAINTENANCE_POINTS, \
-                       MAINTENANCE_TIME
+                       MAINTENANCE_TIME, WEATHER_API_URL
 
 
 class WeatherService:
-    url = 'https://weather.visualcrossing.com/' +\
-          'VisualCrossingWebServices/rest/services/timeline'
+    url = WEATHER_API_URL
     api_key = getenv('VISUAL_CROSSING_API_KEY')
 
     @classmethod

@@ -1,6 +1,10 @@
 from enum import Enum
 
 
+WEATHER_API_URL = 'https://weather.visualcrossing.com/' +\
+          'VisualCrossingWebServices/rest/services/timeline'
+
+
 # how much points increased by maintenance
 MAINTENANCE_POINTS = 4
 

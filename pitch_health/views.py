@@ -1,6 +1,5 @@
 from typing import List
 from bson import errors, ObjectId
-from datetime import datetime
 
 from fastapi import APIRouter, Response
 from loguru import logger
@@ -25,13 +24,8 @@ async def list_pitches() -> List[Pitch]:
 
         # Every listing of pitches, the application will check
         # the health of all pitches that need checking
-        pitch_was_analyzed_today = False
-        if pitch.pitch_analyzed_last is not None:
-            pitch_was_analyzed_today = \
-                pitch.pitch_analyzed_last.date() == datetime.now().date()
-        if not pitch.need_to_change_turf and pitch_was_analyzed_today:
-            PitchHealth.check_turf_health(pitch)
-            pitch.save()
+        PitchHealth.check_turf_health(pitch)
+        pitch.save()
         pitches.append(pitch)
     return pitches
 

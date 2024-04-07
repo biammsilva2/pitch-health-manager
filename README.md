@@ -25,7 +25,7 @@ On this application you will be able to:
 ## Tech choices
 
 - Log: loguru
-- API: Visual Crossing
+- API for retrieving weather information: Visual Crossing
 - database connector: pymongo
 - Package manager: Pipenv
 

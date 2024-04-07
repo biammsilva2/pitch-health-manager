@@ -9,8 +9,6 @@ from loguru import logger
 
 from pitch_health.dal import update_pitch_db
 
-from .database import db
-
 
 class PyObjectId(str):
     @classmethod
@@ -67,7 +65,6 @@ class Pitch(BaseModel):
         json_encoders = {
             PyObjectId: str
         }
-        db = db
 
     def update_points(self, points):
         new_points = self.current_condition + points
