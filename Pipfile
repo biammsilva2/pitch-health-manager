@@ -12,6 +12,7 @@ requests = "*"
 geopy = "*"
 coverage = "*"
 loguru = "*"
+httpx = "*"
 
 [dev-packages]
 flake8 = "*"

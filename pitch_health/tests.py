@@ -3,9 +3,12 @@ from datetime import datetime, timedelta
 from unittest import TestCase
 from unittest.mock import patch
 
+from fastapi.testclient import TestClient
+
 from .services import WeatherService, PitchHealth
 from .schema import Pitch, PitchLocation, TurfType
 from .constants import MAINTENANCE_TIME
+from .main import app
 
 
 class PitchHealthTest(TestCase):

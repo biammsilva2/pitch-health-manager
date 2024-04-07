@@ -27,6 +27,7 @@ class WeatherService:
             params={'key': cls.api_key}
         )
         if result.ok:
+            logger.info(f"Pitch {pitch.id} - External weather API reached")
             return result.json()
         raise ValueError('Weather API unreachable, check if API Key is set')
 
@@ -50,7 +51,7 @@ class WeatherService:
         result = cls.search_weather_from_last_maintenance(
             pitch
         )
-        logger.info(f"Pitch {pitch.id} - External weather API reached")
+        logger.info(f"Pitch {pitch.id} - Calculating rain hours")
         max_precipitation_perc = 0
         for day in result.get('days'):
             precipitation_perc = day.get('precipcover')
